@@ -1,0 +1,96 @@
+import tkinter as tk
+from tkinter import messagebox
+import random
+
+class AppointmentScheduler:
+    def __init__(self):
+        self.appointments = {}
+
+    def submit_appointment(self, patient_name, contact_info, preferred_datetime):
+        appointment_id = self.generate_appointment_id()
+        self.appointments[appointment_id] = {
+            'patient_name': patient_name,
+            'contact_info': contact_info,
+            'preferred_datetime': preferred_datetime
+        }
+        return appointment_id
+
+    def generate_appointment_id(self):
+        return ''.join(random.choices('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', k=8))
+
+    def display_appointment_details(self, appointment_id):
+        if appointment_id in self.appointments:
+            return self.appointments[appointment_id]
+        else:
+            return None
+
+    def cancel_appointment(self, appointment_id):
+        if appointment_id in self.appointments:
+            del self.appointments[appointment_id]
+            return "Appointment cancelled successfully."
+        else:
+            return "Appointment ID not found."
+
+class AppointmentSchedulerGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Medical Appointment Scheduler")
+
+        self.scheduler = AppointmentScheduler()
+
+        self.patient_name_label = tk.Label(root, text="Patient Name:")
+        self.patient_name_label.pack()
+        self.patient_name_entry = tk.Entry(root)
+        self.patient_name_entry.pack()
+
+        self.contact_info_label = tk.Label(root, text="Contact Info:")
+        self.contact_info_label.pack()
+        self.contact_info_entry = tk.Entry(root)
+        self.contact_info_entry.pack()
+
+        self.preferred_datetime_label = tk.Label(root, text="Preferred Datetime:")
+        self.preferred_datetime_label.pack()
+        self.preferred_datetime_entry = tk.Entry(root)
+        self.preferred_datetime_entry.pack()
+
+        self.submit_button = tk.Button(root, text="Submit", command=self.submit_appointment)
+        self.submit_button.pack()
+
+        self.appointment_id_label = tk.Label(root, text="Appointment ID:")
+        self.appointment_id_label.pack()
+        self.appointment_id_entry = tk.Entry(root)
+        self.appointment_id_entry.pack()
+
+        self.display_button = tk.Button(root, text="Display Appointment", command=self.display_appointment)
+        self.display_button.pack()
+
+        self.cancel_button = tk.Button(root, text="Cancel Appointment", command=self.cancel_appointment)
+        self.cancel_button.pack()
+
+        self.exit_button = tk.Button(root, text="Exit", command=root.quit)
+        self.exit_button.pack()
+
+    def submit_appointment(self):
+        patient_name = self.patient_name_entry.get()
+        contact_info = self.contact_info_entry.get()
+        preferred_datetime = self.preferred_datetime_entry.get()
+        appointment_id = self.scheduler.submit_appointment(patient_name, contact_info, preferred_datetime)
+        messagebox.showinfo("Appointment ID", f"Your Appointment ID is: {appointment_id}")
+
+    def display_appointment(self):
+        appointment_id = self.appointment_id_entry.get()
+        appointment_details = self.scheduler.display_appointment_details(appointment_id)
+        if appointment_details:
+            messagebox.showinfo("Appointment Details", f"Patient Name: {appointment_details['patient_name']}\nContact Info: {appointment_details['contact_info']}\nPreferred Datetime: {appointment_details['preferred_datetime']}")
+        else:
+            messagebox.showerror("Error", "Appointment ID not found.")
+
+    def cancel_appointment(self):
+        appointment_id = self.appointment_id_entry.get()
+        result = self.scheduler.cancel_appointment(appointment_id)
+        messagebox.showinfo("Cancellation Status", result)
+
+
+root = tk.Tk()
+app = AppointmentSchedulerGUI(root)
+root.mainloop()
